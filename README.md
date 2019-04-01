@@ -1,3 +1,9 @@
+
+```
+node --experimental-worker index.js
+```
+
+Output: 
 ```
 [ '$2a$15$sTEuj6L6ZiavaI3I0cZ54uoZqP.AjAZYc7NJ8Eks3CO9MG4CSuudC',
   '$2a$15$6yLczV3LY0HppqiYFKSZaeftRH/GYc1xs7sg1w0x1wYuELZrsviyO',

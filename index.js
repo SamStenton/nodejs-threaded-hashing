@@ -1,8 +1,11 @@
 
 // run with node --experimental-worker index.js on Node.js 10.x
 const { Worker } = require('worker_threads')
-const threadCount = (require('os')).cpus().length;
 const bcrypt = require('bcryptjs');
+
+// Get the system threadcount. This is used
+// to define the amount of hashes to perform
+const threadCount = (require('os')).cpus().length;
 
 /**
  * Some boilerplate for running threads
@@ -20,41 +23,33 @@ function runService(workerData) {
   })
 }
 
+const threaded = () => runService('supersecurepassword');
+const nonThreaded = () => bcrypt.hash('supersecurepassword', 15);
 
 /**
- * Run the hashing with threads
+ * Run the job
  */
-async function runWithThreads() {
+async function run(arg) {
   const jobs = [];
 
   for (var i = 0; i < threadCount; i++) {
-    jobs.push(runService('supersecurepassword' + i));
+    jobs.push(arg());
   }
   return Promise.all(jobs);
 }
 
-/**
- * Run the hashing without thread
- */
-async function runWithoutThreads() {
-  const jobs = [];
-
-  for (var i = 0; i < threadCount; i++) {
-    jobs.push(bcrypt.hash('supersecurepassword' + i, 15));
-  }
-  return Promise.all(jobs);
-}
-
+// THREADED
 const threadedStart = new Date();
-runWithThreads()
+run(threaded)
 .then(async res => {
   console.log(await res);
   console.log("Threaded Execution time: ", new Date() - threadedStart);
 })
 .catch(err => console.error(err))
 
-let nonThreadedStart = new Date();
-runWithoutThreads()
+// NON-THREADED
+const nonThreadedStart = new Date();
+run(nonThreaded)
 .then(async res => {
   console.log(await res);
   console.log("Non-Threaded Execution time: ", new Date() - nonThreadedStart);
